@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\FormController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -14,9 +15,16 @@ Route::get('/', function () {
     ]);
 });
 
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+
+Route::middleware('auth')->group(function () {
+    Route::get('/forms', [FormController::class, 'index'])->name('dashboard');
+    Route::get('/forms/create', [FormController::class, 'create'])->name('forms.create');
+    Route::post('/forms', [FormController::class, 'store'])->name('forms.store');
+    Route::get('/forms/{form}/edit', [FormController::class, 'edit'])->name('forms.edit');
+    Route::get('/forms/{form}/show', [FormController::class, 'show'])->name('forms.show');
+    Route::patch('/forms/{form}', [FormController::class, 'update'])->name('forms.update');
+    Route::delete('/forms/{form}', [FormController::class, 'destroy'])->name('forms.destroy');
+});
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
