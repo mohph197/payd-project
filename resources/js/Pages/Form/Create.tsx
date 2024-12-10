@@ -20,7 +20,7 @@ export default function CreateForm({
 }>) {
     const [formFields, setFormFields] = useState<FormField[]>([]);
     const [lastId, setLastId] = useState(0);
-    const { setData, submit, processing, data } = useForm<{
+    const { setData, submit, processing, errors } = useForm<{
         name: string;
         country_code: string;
         fields: FormField[];
@@ -95,16 +95,30 @@ export default function CreateForm({
             <div className="p-12 flex flex-col gap-5">
                 <h1 className="text-2xl font-semibold">Form Creation</h1>
                 <form className="flex flex-col gap-4" onSubmit={submitForm}>
+                    {errors.fields && (
+                        <div className="bg-red-100 text-red-700 p-2 rounded-lg">
+                            {errors.fields}
+                        </div>
+                    )}
                     <div className="grid grid-cols-1 gap-4 lg:grid-cols-[3fr,1fr]">
                         <div className="flex flex-col gap-2">
                             <label htmlFor="name" className="font-semibold">
                                 Form Name
                             </label>
+                            {errors.name && (
+                                <div className="text-red-700">
+                                    {errors.name}
+                                </div>
+                            )}
                             <input
                                 type="text"
                                 id="name"
                                 name="name"
-                                className="p-2 border border-gray-300 rounded-lg"
+                                className={`p-2 border rounded-lg ${
+                                    errors.name
+                                        ? "border-red-300"
+                                        : "border-gray-300"
+                                }`}
                                 disabled={processing}
                                 onChange={(e) =>
                                     setData("name", e.target.value)
@@ -115,10 +129,19 @@ export default function CreateForm({
                             <label htmlFor="country" className="font-semibold">
                                 Select Country
                             </label>
+                            {errors.country_code && (
+                                <div className="text-red-700">
+                                    {errors.country_code}
+                                </div>
+                            )}
                             <select
                                 id="country"
                                 name="country"
-                                className="p-2 border border-gray-300 rounded-lg"
+                                className={`p-2 border rounded-lg ${
+                                    errors.country_code
+                                        ? "border-red-300"
+                                        : "border-gray-300"
+                                }`}
                                 disabled={processing}
                                 onChange={(e) =>
                                     setData("country_code", e.target.value)
@@ -136,11 +159,13 @@ export default function CreateForm({
                             </select>
                         </div>
                     </div>
-                    {formFields.map((field) => (
+                    {formFields.map((field, index) => (
                         <FieldCreator
                             key={field.id}
+                            index={index}
                             field={field}
                             disabled={processing}
+                            errors={errors}
                             moveField={(direction) =>
                                 field.id !== undefined &&
                                 moveField(direction, field.id)

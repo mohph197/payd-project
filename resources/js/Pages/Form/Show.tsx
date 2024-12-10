@@ -12,7 +12,6 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Head, Link } from "@inertiajs/react";
 import { useForm } from "laravel-precognition-react-inertia";
-import { useEffect } from "react";
 
 function createInitialData(form: { name: string; fields: FormField[] }) {
     const fields_data = form.fields.reduce((acc, field) => {
@@ -81,10 +80,6 @@ export default function ShowForm({
         reset();
     }
 
-    useEffect(() => {
-        console.log(errors);
-    }, [errors]);
-
     return (
         <AnnonymousLayout>
             <Head
@@ -96,6 +91,11 @@ export default function ShowForm({
                 onSubmit={handleSubmit}
                 onReset={handleReset}
             >
+                {errors.fields && (
+                    <div className="bg-red-100 text-red-700 p-2 rounded-lg">
+                        {errors.fields}
+                    </div>
+                )}
                 <div className="bg-white p-5 rounded-lg shadow-md flex justify-between items-center">
                     <h1 className="text-2xl font-semibold">{form.name}</h1>
                     {auth.user &&
@@ -117,6 +117,7 @@ export default function ShowForm({
                             <FieldDisplay
                                 key={field.id}
                                 field={field}
+                                errors={errors}
                                 field_value={field.value}
                                 changeValue={(value) =>
                                     changeFieldValue(field.id!, value)

@@ -9,7 +9,6 @@ import {
     faSpinner,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-// import { Head, useForm } from "@inertiajs/react";
 import { Head } from "@inertiajs/react";
 import { useForm } from "laravel-precognition-react-inertia";
 import { useEffect, useState } from "react";
@@ -155,16 +154,31 @@ export default function EditForm({
                     onSubmit={submitForm}
                     onReset={resetForm}
                 >
+                    {errors.fields && (
+                        <div className="bg-red-100 text-red-700 p-2 rounded-lg">
+                            {errors.fields}
+                        </div>
+                    )}
                     <div className="grid grid-cols-1 gap-4 lg:grid-cols-[3fr,1fr]">
                         <div className="flex flex-col gap-2">
                             <label htmlFor="name" className="font-semibold">
                                 Form Name
                             </label>
+                            {errors.name && (
+                                <div className="text-red-700">
+                                    {errors.name}
+                                </div>
+                            )}
                             <input
                                 type="text"
                                 id="name"
                                 name="name"
-                                className="p-2 border border-gray-300 rounded-lg"
+                                // className="p-2 border border-gray-300 rounded-lg"
+                                className={`p-2 border rounded-lg ${
+                                    errors.name
+                                        ? "border-red-300"
+                                        : "border-gray-300"
+                                }`}
                                 disabled={processing}
                                 defaultValue={form.name}
                                 onChange={(e) =>
@@ -176,10 +190,20 @@ export default function EditForm({
                             <label htmlFor="country" className="font-semibold">
                                 Select Country
                             </label>
+                            {errors.country_code && (
+                                <div className="text-red-700">
+                                    {errors.country_code}
+                                </div>
+                            )}
                             <select
                                 id="country"
                                 name="country"
-                                className="p-2 border border-gray-300 rounded-lg"
+                                // className="p-2 border border-gray-300 rounded-lg"
+                                className={`p-2 border rounded-lg ${
+                                    errors.country_code
+                                        ? "border-red-300"
+                                        : "border-gray-300"
+                                }`}
                                 disabled={processing}
                                 defaultValue={form.country_code}
                                 onChange={(e) =>
@@ -198,10 +222,12 @@ export default function EditForm({
                             </select>
                         </div>
                     </div>
-                    {formFields.map((field) => (
+                    {formFields.map((field, index) => (
                         <FieldCreator
                             key={field.id}
+                            index={index}
                             field={field}
+                            errors={errors}
                             disabled={processing}
                             moveField={(direction) =>
                                 field.id !== undefined &&

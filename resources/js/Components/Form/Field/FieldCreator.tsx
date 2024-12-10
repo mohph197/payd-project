@@ -14,12 +14,16 @@ export default function FieldCreator({
     updateField,
     moveField,
     removeField,
+    index,
+    errors,
     disabled = false,
 }: {
     field: FormField;
     updateField: (attribute: string, value: any) => void;
     moveField: (direction: "up" | "down") => void;
     removeField: () => void;
+    index: number;
+    errors: Record<string, string[] | string>;
     disabled?: boolean;
 }) {
     const [options, setOptions] = useState<string[] | undefined>(field.options);
@@ -65,6 +69,11 @@ export default function FieldCreator({
 
     return (
         <div className="bg-white p-4 rounded-lg shadow-md flex flex-col gap-4">
+            {field.id !== undefined && errors[field.id.toString()] && (
+                <div className="text-red-700">
+                    {errors[field.id.toString()]}
+                </div>
+            )}
             <div className="flex gap-2 justify-between">
                 <div className="flex gap-2">
                     <button
@@ -102,11 +111,21 @@ export default function FieldCreator({
                     >
                         Field Name
                     </label>
+                    {errors[`fields.${index}.name`] && (
+                        <div className="text-red-700">
+                            {errors[`fields.${index}.name`]}
+                        </div>
+                    )}
                     <input
                         type="text"
                         id={`field-name-${field.id}`}
                         name="name"
-                        className="p-2 border border-gray-300 rounded-lg w-full"
+                        // className="p-2 border border-gray-300 rounded-lg w-full"
+                        className={`p-2 border rounded-lg ${
+                            errors[`fields.${index}.name`]
+                                ? "border-red-300"
+                                : "border-gray-300"
+                        } w-full`}
                         defaultValue={field.name}
                         onChange={(e) => updateField("name", e.target.value)}
                         disabled={disabled}
@@ -119,10 +138,20 @@ export default function FieldCreator({
                     >
                         Field Category
                     </label>
+                    {errors[`fields.${index}.category`] && (
+                        <div className="text-red-700">
+                            {errors[`fields.${index}.category`]}
+                        </div>
+                    )}
                     <select
                         id={`field-category-${field.id}`}
                         name="category"
-                        className="p-2 border border-gray-300 rounded-lg w-full"
+                        // className="p-2 border border-gray-300 rounded-lg w-full"
+                        className={`p-2 border rounded-lg ${
+                            errors[`fields.${index}.category`]
+                                ? "border-red-300"
+                                : "border-gray-300"
+                        } w-full`}
                         defaultValue={field.category}
                         onChange={(e) =>
                             updateField(
@@ -146,10 +175,20 @@ export default function FieldCreator({
                     >
                         Field Type
                     </label>
+                    {errors[`fields.${index}.type`] && (
+                        <div className="text-red-700">
+                            {errors[`fields.${index}.type`]}
+                        </div>
+                    )}
                     <select
                         id={`field-type-${field.id}`}
                         name="type"
-                        className="p-2 border border-gray-300 rounded-lg w-full"
+                        // className="p-2 border border-gray-300 rounded-lg w-full"
+                        className={`p-2 border rounded-lg ${
+                            errors[`fields.${index}.type`]
+                                ? "border-red-300"
+                                : "border-gray-300"
+                        } w-full`}
                         defaultValue={field.type}
                         onChange={(e) => {
                             updateField("type", e.target.value as FieldType);
@@ -173,6 +212,11 @@ export default function FieldCreator({
                     >
                         Required
                     </label>
+                    {errors[`fields.${index}.required`] && (
+                        <div className="text-red-700">
+                            {errors[`fields.${index}.required`]}
+                        </div>
+                    )}
                     <input
                         type="checkbox"
                         id={`field-required-${field.id}`}
@@ -194,6 +238,11 @@ export default function FieldCreator({
                     >
                         Options
                     </label>
+                    {errors[`fields.${index}.options`] && (
+                        <div className="text-red-700">
+                            {errors[`fields.${index}.options`]}
+                        </div>
+                    )}
                     <div className="grid grid-cols-1 gap-2">
                         {options !== undefined &&
                             options.map((option, index) => (
@@ -220,6 +269,17 @@ export default function FieldCreator({
                                         }
                                         disabled={disabled}
                                     />
+                                    {errors[
+                                        `fields.${index}.options.${index}`
+                                    ] && (
+                                        <div className="text-red-700">
+                                            {
+                                                errors[
+                                                    `fields.${index}.options.${index}`
+                                                ]
+                                            }
+                                        </div>
+                                    )}
                                 </div>
                             ))}
                         <button

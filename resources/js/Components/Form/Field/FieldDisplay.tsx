@@ -9,12 +9,14 @@ export default function FieldDisplay({
     phone_code,
     changeValue,
     field_value,
+    errors,
     disabled = false,
 }: {
     field: FormField;
     currency_code: string;
     phone_code: string;
     changeValue: (value: any) => void;
+    errors: Record<string, string[] | string>;
     field_value?: any;
     disabled?: boolean;
 }) {
@@ -106,6 +108,11 @@ export default function FieldDisplay({
 
     return (
         <div className="bg-white p-3 rounded-lg shadow-md flex flex-col gap-2">
+            {field.id !== undefined && errors[field.id.toString()] && (
+                <div className="text-red-700">
+                    {errors[field.id.toString()]}
+                </div>
+            )}
             <label
                 htmlFor={`field-${field.id}`}
                 className="font-semibold flex gap-1"
