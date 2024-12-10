@@ -1,6 +1,8 @@
 import FieldDisplay from "@/Components/Form/Field/FieldDisplay";
+import AnnonymousLayout from "@/Layouts/AnonymousLayout";
+import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { PageProps } from "@/types";
-import { FormField } from "@/types/form-field";
+import { FieldCategory, FormField } from "@/types/form-field";
 import {
     faEdit,
     faPaperPlane,
@@ -83,16 +85,14 @@ export default function ShowForm({
         console.log(errors);
     }, [errors]);
 
-    useEffect(() => {
-        console.log(form.fields.map((field) => field.value));
-    }, []);
-
     return (
-        <div className="min-h-screen bg-gray-100">
-            <Head title={form.name} />
+        <AnnonymousLayout>
+            <Head
+                title={submission_id ? "Edit Submission" : "New Submission"}
+            />
 
             <form
-                className="py-16 px-32 flex flex-col gap-5"
+                className="py-10 px-32 flex flex-col gap-5"
                 onSubmit={handleSubmit}
                 onReset={handleReset}
             >
@@ -149,6 +149,6 @@ export default function ShowForm({
                     </button>
                 </div>
             </form>
-        </div>
+        </AnnonymousLayout>
     );
 }

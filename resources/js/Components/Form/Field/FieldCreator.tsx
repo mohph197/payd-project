@@ -14,7 +14,7 @@ export default function FieldCreator({
     updateField,
     moveField,
     removeField,
-    disabled = true,
+    disabled = false,
 }: {
     field: FormField;
     updateField: (attribute: string, value: any) => void;
@@ -22,7 +22,7 @@ export default function FieldCreator({
     removeField: () => void;
     disabled?: boolean;
 }) {
-    const [options, setOptions] = useState<string[] | undefined>();
+    const [options, setOptions] = useState<string[] | undefined>(field.options);
 
     function requiresOptions(type: FieldType) {
         return [
@@ -56,7 +56,11 @@ export default function FieldCreator({
     }
 
     useEffect(() => {
-        if (options) updateField("options", options);
+        setOptions(field.options);
+    }, [field.options]);
+
+    useEffect(() => {
+        updateField("options", options);
     }, [options]);
 
     return (
@@ -119,7 +123,7 @@ export default function FieldCreator({
                         id={`field-category-${field.id}`}
                         name="category"
                         className="p-2 border border-gray-300 rounded-lg w-full"
-                        value={field.category}
+                        defaultValue={field.category}
                         onChange={(e) =>
                             updateField(
                                 "category",
@@ -146,7 +150,7 @@ export default function FieldCreator({
                         id={`field-type-${field.id}`}
                         name="type"
                         className="p-2 border border-gray-300 rounded-lg w-full"
-                        value={field.type}
+                        defaultValue={field.type}
                         onChange={(e) => {
                             updateField("type", e.target.value as FieldType);
                             if (!requiresOptions(e.target.value as FieldType)) {
@@ -191,7 +195,7 @@ export default function FieldCreator({
                         Options
                     </label>
                     <div className="grid grid-cols-1 gap-2">
-                        {options != undefined &&
+                        {options !== undefined &&
                             options.map((option, index) => (
                                 <div
                                     key={index}
@@ -199,17 +203,17 @@ export default function FieldCreator({
                                 >
                                     <button
                                         type="button"
-                                        className="p-2 bg-red-500 text-white rounded-lg shadow-md hover:shadow-lg transition duration-150 aspect-square h-8 w-8 flex items-center justify-center"
+                                        className="p-2 bg-red-500 text-white rounded-md shadow-md hover:shadow-lg transition duration-150 aspect-square h-5 w-5 flex items-center justify-center"
                                         onClick={() => removeOption(index)}
                                         disabled={disabled}
                                     >
-                                        <FontAwesomeIcon icon={faX} />
+                                        <FontAwesomeIcon icon={faX} size="xs" />
                                     </button>
                                     <input
                                         type="text"
                                         id={`field-option-${field.id}-${index}`}
                                         name={`option-${index}`}
-                                        className="p-2 border border-gray-300 rounded-lg"
+                                        className="p-2 border border-gray-300 rounded-lg max-w-lg w-full"
                                         value={option}
                                         onChange={(e) =>
                                             updateOption(index, e.target.value)
@@ -221,7 +225,7 @@ export default function FieldCreator({
                         <button
                             type="button"
                             className="px-2 py-1 bg-blue-500 text-white rounded-lg shadow-md hover:shadow-lg transition duration-150 justify-self-start flex gap-2 items-center"
-                            onClick={() => addOption()}
+                            onClick={addOption}
                             disabled={disabled}
                         >
                             <FontAwesomeIcon icon={faAdd} />

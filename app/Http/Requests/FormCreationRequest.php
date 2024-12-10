@@ -43,7 +43,9 @@ class FormCreationRequest extends FormRequest
     {
         return [
             function (Validator $validator) {
-                foreach ($validator->validated()["fields"] as $index => $field) {
+                $validated_fields = $validator->validated()["fields"];
+                // Verify that options are provided for dropdown, checkbox, and radio fields
+                foreach ($validated_fields as $index => $field) {
                     if (
                         in_array($field["type"], ["dropdown", "checkbox", "radio"])
                         && (!isset($field["options"]) || !is_array($field["options"]) || count($field["options"]) < 2)
@@ -51,13 +53,13 @@ class FormCreationRequest extends FormRequest
                         $validator->errors()->add("fields.$index.options", "The options field is required for {$field['type']} fields and must contain at least 2 options.");
                     }
                 }
-            },
-            function (Validator $validator) {
-                $orders = array_map(fn($field) => $field["order"], $validator->validated()["fields"]);
+
+                // Verify that the order and name fields are unique
+                $orders = array_map(fn($field) => $field["order"], $validated_fields);
                 if (count($orders) !== count(array_unique($orders))) {
                     $validator->errors()->add("fields", "The order field must be unique.");
                 }
-                $names = array_map(fn($field) => $field["name"], $validator->validated()["fields"]);
+                $names = array_map(fn($field) => $field["name"], $validated_fields);
                 if (count($names) !== count(array_unique($names))) {
                     $validator->errors()->add("fields", "The name field must be unique.");
                 }

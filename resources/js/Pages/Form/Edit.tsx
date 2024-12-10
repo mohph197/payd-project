@@ -2,15 +2,28 @@ import FieldCreator from "@/Components/Form/Field/FieldCreator";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { PageProps } from "@/types";
 import { FieldCategory, FieldType, FormField } from "@/types/form-field";
-import { faAdd, faSave, faSpinner } from "@fortawesome/free-solid-svg-icons";
+import {
+    faAdd,
+    faRotate,
+    faSave,
+    faSpinner,
+} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+// import { Head, useForm } from "@inertiajs/react";
 import { Head } from "@inertiajs/react";
 import { useForm } from "laravel-precognition-react-inertia";
 import { useEffect, useState } from "react";
 
-export default function CreateForm({
+export default function EditForm({
+    form,
     countries,
 }: PageProps<{
+    form: {
+        id: number;
+        name: string;
+        country_code: string;
+        fields: FormField[];
+    };
     countries: [
         {
             code: string;
@@ -18,31 +31,44 @@ export default function CreateForm({
         }
     ];
 }>) {
-    const [formFields, setFormFields] = useState<FormField[]>([]);
-    const [lastId, setLastId] = useState(0);
-    const { setData, submit, processing, data } = useForm<{
+    const [formFields, setFormFields] = useState<FormField[]>(
+        form.fields.toSorted((a, b) => a.order! - b.order!)
+    );
+    const [lastId, setLastId] = useState(
+        form.fields.length === 0
+            ? 0
+            : Math.max(...form.fields.map((field) => field.id!))
+    );
+    const [removedFields, setRemovedFields] = useState<number[]>([]);
+    const [addedIds, setAddedIds] = useState<number[]>([]);
+    const { setData, submit, processing, reset, errors } = useForm<{
         name: string;
         country_code: string;
         fields: FormField[];
-    }>("post", route("forms.store"), {
-        name: "",
-        country_code: "",
+        removed_fields: number[];
+    }>("patch", route("forms.update", form.id), {
+        name: form.name,
+        country_code: form.country_code,
         fields: [],
+        removed_fields: [],
     });
 
     function addField() {
         const newId = lastId + 1;
-        setFormFields((fields) => [
-            ...fields,
-            {
-                id: newId,
-                name: "",
-                category: FieldCategory.GENERAL,
-                type: FieldType.TEXT,
-                required: false,
-            },
-        ]);
+        setFormFields((fields) => {
+            return [
+                ...fields,
+                {
+                    id: newId,
+                    name: "",
+                    category: FieldCategory.GENERAL,
+                    type: FieldType.TEXT,
+                    required: false,
+                },
+            ];
+        });
         setLastId(newId);
+        setAddedIds((ids) => [...ids, newId]);
     }
 
     function moveField(direction: "up" | "down", field_id: number) {
@@ -71,30 +97,64 @@ export default function CreateForm({
         setFormFields((fields) =>
             fields.filter((field) => field.id !== field_id)
         );
+        if (!addedIds.includes(field_id)) {
+            setRemovedFields((ids) => [...ids, field_id]);
+        }
     }
 
     useEffect(() => {
         setData(
-            "fields",
-            formFields.map(({ id, ...field }, index) => ({
-                ...field,
-                order: index,
-            }))
+            (prevData: {
+                name: string;
+                country_code: string;
+                fields: FormField[];
+                removed_fields: number[];
+            }) => ({
+                ...prevData,
+                removed_fields: removedFields,
+                fields: formFields.map(({ id, ...field }, index) => {
+                    if (addedIds.includes(id!)) {
+                        return {
+                            ...field,
+                            order: index,
+                        };
+                    }
+
+                    return {
+                        id,
+                        ...field,
+                        order: index,
+                    };
+                }),
+            })
         );
-    }, [formFields]);
+    }, [formFields, addedIds, removedFields]);
 
     function submitForm(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
-        submit();
+        submit({
+            preserveScroll: true,
+        });
+    }
+
+    function resetForm() {
+        reset();
+        setFormFields(form.fields.toSorted((a, b) => a.order! - b.order!));
+        setRemovedFields([]);
+        setAddedIds([]);
     }
 
     return (
         <AuthenticatedLayout>
-            <Head title="Form Creation" />
+            <Head title="Edit Form" />
 
             <div className="p-12 flex flex-col gap-5">
-                <h1 className="text-2xl font-semibold">Form Creation</h1>
-                <form className="flex flex-col gap-4" onSubmit={submitForm}>
+                <h1 className="text-2xl font-semibold">Edit Form</h1>
+                <form
+                    className="flex flex-col gap-4"
+                    onSubmit={submitForm}
+                    onReset={resetForm}
+                >
                     <div className="grid grid-cols-1 gap-4 lg:grid-cols-[3fr,1fr]">
                         <div className="flex flex-col gap-2">
                             <label htmlFor="name" className="font-semibold">
@@ -106,6 +166,7 @@ export default function CreateForm({
                                 name="name"
                                 className="p-2 border border-gray-300 rounded-lg"
                                 disabled={processing}
+                                defaultValue={form.name}
                                 onChange={(e) =>
                                     setData("name", e.target.value)
                                 }
@@ -120,6 +181,7 @@ export default function CreateForm({
                                 name="country"
                                 className="p-2 border border-gray-300 rounded-lg"
                                 disabled={processing}
+                                defaultValue={form.country_code}
                                 onChange={(e) =>
                                     setData("country_code", e.target.value)
                                 }
@@ -163,6 +225,14 @@ export default function CreateForm({
                         >
                             <FontAwesomeIcon icon={faAdd} />
                             Add Field
+                        </button>
+                        <button
+                            type="reset"
+                            className="px-4 py-2 bg-red-600 text-white rounded-lg shadow-md hover:shadow-lg transition duration-150 flex items-center gap-2"
+                            disabled={processing}
+                        >
+                            <FontAwesomeIcon icon={faRotate} />
+                            Reset Form
                         </button>
                         <button
                             type="submit"

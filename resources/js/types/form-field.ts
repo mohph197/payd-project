@@ -8,7 +8,7 @@ export enum FieldType {
     TEXT = "text",
     NUMBER = "number",
     EMAIL = "email",
-    PHONE = "tel",
+    PHONE = "phone",
     PASSWORD = "password",
     CURRENCY = "currency",
     TEXTAREA = "textarea",

@@ -40,6 +40,9 @@ export default function FieldDisplay({
         if (type === FieldType.CURRENCY) {
             return "number";
         }
+        if (type === FieldType.PHONE) {
+            return "tel";
+        }
         if (isTextualType(type)) {
             return type;
         }
