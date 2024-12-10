@@ -23,6 +23,5 @@ class CountrySeeder extends Seeder
         ];
 
         DB::table('countries')->insert($countries);
-
     }
 }

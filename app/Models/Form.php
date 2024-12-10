@@ -20,6 +20,14 @@ class Form extends Model
     ];
 
     /**
+     * Get the user that created this form.
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    /**
      * Get the country of this form.
      */
     public function country(): BelongsTo

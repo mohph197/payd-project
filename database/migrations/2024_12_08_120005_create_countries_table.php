@@ -16,8 +16,6 @@ return new class extends Migration
             $table->string('name');
             $table->string('phone_code', 5);
             $table->string('currency_code', 3);
-
-            $table->timestamps();
         });
     }
 
