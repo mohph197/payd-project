@@ -80,12 +80,12 @@ class FormController extends Controller
         $form->save();
 
         $fields = $request->input('fields');
-        $fields = $fields->map(function ($field) {
+        $fields = array_map(function ($field) {
             if (isset($field['options'])) {
                 $field['options'] = json_encode($field['options']);
             }
             return $field;
-        });
+        }, $fields);
 
         $form->fields()->createMany($fields);
 
